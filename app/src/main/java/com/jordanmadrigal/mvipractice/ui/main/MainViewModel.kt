@@ -18,19 +18,24 @@ class MainViewModel : ViewModel(){
 
     val dataState: LiveData<MainViewState> = Transformations
         .switchMap(_stateEvent){stateEvent ->
-            when(stateEvent){
+            handleStateEvent(stateEvent)
+        }
 
-                is GetBlogPostsEvent -> {
-                    AbsentLiveData.create<MainViewState>()
-                }
+    private fun handleStateEvent(stateEvent: MainStateEvent): LiveData<MainViewState>{
+        return when(stateEvent){
 
-                is GetUserEvent -> {
-                    AbsentLiveData.create<MainViewState>()
-                }
+            is GetBlogPostsEvent -> {
+                AbsentLiveData.create()
+            }
 
-                is None -> {
-                    AbsentLiveData.create<MainViewState>()
-                }
+            is GetUserEvent -> {
+                AbsentLiveData.create()
+            }
+
+            is None -> {
+                AbsentLiveData.create()
             }
         }
+    }
+
 }
