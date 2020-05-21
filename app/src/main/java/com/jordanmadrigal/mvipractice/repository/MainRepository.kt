@@ -7,27 +7,28 @@ import com.jordanmadrigal.mvipractice.ui.main.state.MainViewState
 import com.jordanmadrigal.mvipractice.util.ApiEmptyResponse
 import com.jordanmadrigal.mvipractice.util.ApiErrorResponse
 import com.jordanmadrigal.mvipractice.util.ApiSuccessResponse
+import com.jordanmadrigal.mvipractice.util.DataState
 
 object MainRepository {
 
-    fun getBlogPosts(): LiveData<MainViewState>{
+    fun getBlogPosts(): LiveData<DataState<MainViewState>>{
         return Transformations
             .switchMap(RetrofitBuilder.apiService.getBlogPosts()){apiResponse ->
-                object: LiveData<MainViewState>(){
+                object: LiveData<DataState<MainViewState>>(){
                     override fun onActive() {
                         super.onActive()
                         value = when(apiResponse){
 
                             is ApiSuccessResponse ->{
-                                MainViewState(blogPosts = apiResponse.body)
+                                DataState.data(data = MainViewState(blogPosts = apiResponse.body))
                             }
 
                             is ApiErrorResponse ->{
-                                MainViewState() //TODO Handle Errors
+                                DataState.error(message = apiResponse.errorMessage)
                             }
 
                             is ApiEmptyResponse ->{
-                                MainViewState() //TODO Handle Empty responses
+                                DataState.error(message = "HTTP 204. Returned Nothing")
                             }
                         }
                     }
@@ -35,24 +36,24 @@ object MainRepository {
             }
     }
 
-    fun getUser(userId: String): LiveData<MainViewState>{
+    fun getUser(userId: String): LiveData<DataState<MainViewState>>{
         return Transformations
             .switchMap(RetrofitBuilder.apiService.getUser(userId)){apiResponse ->
-                object: LiveData<MainViewState>(){
+                object: LiveData<DataState<MainViewState>>(){
                     override fun onActive() {
                         super.onActive()
                         value = when(apiResponse){
 
                             is ApiSuccessResponse ->{
-                                MainViewState(user = apiResponse.body)
+                                DataState.data(data = MainViewState(user = apiResponse.body))
                             }
 
                             is ApiErrorResponse ->{
-                                MainViewState() //TODO Handle Errors
+                                DataState.error(message = apiResponse.errorMessage)
                             }
 
                             is ApiEmptyResponse ->{
-                                MainViewState() //TODO Handle Empty responses
+                                DataState.error(message = "HTTP 204. Returned Nothing")
                             }
                         }
                     }
