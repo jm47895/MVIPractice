@@ -1,64 +1,43 @@
 package com.jordanmadrigal.mvipractice.repository
 
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.Transformations
 import com.jordanmadrigal.mvipractice.api.RetrofitBuilder
+import com.jordanmadrigal.mvipractice.model.BlogPost
+import com.jordanmadrigal.mvipractice.model.User
 import com.jordanmadrigal.mvipractice.ui.main.state.MainViewState
-import com.jordanmadrigal.mvipractice.util.ApiEmptyResponse
-import com.jordanmadrigal.mvipractice.util.ApiErrorResponse
 import com.jordanmadrigal.mvipractice.util.ApiSuccessResponse
 import com.jordanmadrigal.mvipractice.util.DataState
+import com.jordanmadrigal.mvipractice.util.GenericApiResponse
 
 object MainRepository {
 
     fun getBlogPosts(): LiveData<DataState<MainViewState>>{
-        return Transformations
-            .switchMap(RetrofitBuilder.apiService.getBlogPosts()){apiResponse ->
-                object: LiveData<DataState<MainViewState>>(){
-                    override fun onActive() {
-                        super.onActive()
-                        value = when(apiResponse){
+        return object : NetworkBoundResource<List<BlogPost>, MainViewState>(){
 
-                            is ApiSuccessResponse ->{
-                                DataState.data(data = MainViewState(blogPosts = apiResponse.body))
-                            }
-
-                            is ApiErrorResponse ->{
-                                DataState.error(message = apiResponse.errorMessage)
-                            }
-
-                            is ApiEmptyResponse ->{
-                                DataState.error(message = "HTTP 204. Returned Nothing")
-                            }
-                        }
-                    }
-                }
+            override fun createCall(): LiveData<GenericApiResponse<List<BlogPost>>> {
+                return RetrofitBuilder.apiService.getBlogPosts()
             }
+
+            override fun handleApiSuccessResponse(response: ApiSuccessResponse<List<BlogPost>>) {
+                result.value = DataState.data(data = MainViewState(blogPosts = response.body))
+            }
+
+        }.asLiveData()
     }
 
     fun getUser(userId: String): LiveData<DataState<MainViewState>>{
-        return Transformations
-            .switchMap(RetrofitBuilder.apiService.getUser(userId)){apiResponse ->
-                object: LiveData<DataState<MainViewState>>(){
-                    override fun onActive() {
-                        super.onActive()
-                        value = when(apiResponse){
+        return object : NetworkBoundResource<User, MainViewState>(){
 
-                            is ApiSuccessResponse ->{
-                                DataState.data(data = MainViewState(user = apiResponse.body))
-                            }
-
-                            is ApiErrorResponse ->{
-                                DataState.error(message = apiResponse.errorMessage)
-                            }
-
-                            is ApiEmptyResponse ->{
-                                DataState.error(message = "HTTP 204. Returned Nothing")
-                            }
-                        }
-                    }
-                }
+            override fun createCall(): LiveData<GenericApiResponse<User>>{
+                return RetrofitBuilder.apiService.getUser(userId)
             }
+
+            override fun handleApiSuccessResponse(response: ApiSuccessResponse<User>) {
+                result.value = DataState.data(data = MainViewState(user = response.body))
+            }
+
+
+        }.asLiveData()
     }
 
 }
