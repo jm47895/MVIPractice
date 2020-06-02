@@ -8,8 +8,10 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.bumptech.glide.Glide
 import com.jordanmadrigal.mvipractice.R
 import com.jordanmadrigal.mvipractice.model.BlogPost
+import com.jordanmadrigal.mvipractice.model.User
 import com.jordanmadrigal.mvipractice.ui.DataStateListener
 import com.jordanmadrigal.mvipractice.ui.main.state.MainStateEvent
 import kotlinx.android.synthetic.main.fragment_main.*
@@ -86,9 +88,20 @@ class MainFragment : Fragment(), BlogListAdapter.Interaction {
             }
 
             viewState.user?.let {
-
+                setUserProperties(it)
             }
         })
+    }
+
+    private fun setUserProperties(user: User){
+        email.text = user.email
+        username.text = user.username
+
+        view?.let {
+            Glide.with(it.context)
+                .load(user.image)
+                .into(image)
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
